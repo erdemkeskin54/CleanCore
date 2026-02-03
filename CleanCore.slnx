@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/CleanCore.Api/CleanCore.Api.csproj" />
+    <Project Path="src/CleanCore.Application/CleanCore.Application.csproj" />
+    <Project Path="src/CleanCore.Domain/CleanCore.Domain.csproj" />
+    <Project Path="src/CleanCore.Infrastructure/CleanCore.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CleanCore.IntegrationTests/CleanCore.IntegrationTests.csproj" />
+    <Project Path="tests/CleanCore.UnitTests/CleanCore.UnitTests.csproj" />
+  </Folder>
+</Solution>
