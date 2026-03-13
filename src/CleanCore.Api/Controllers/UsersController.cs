@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using CleanCore.Api.Extensions;
 using CleanCore.Application.Users.CreateUser;
 using CleanCore.Application.Users.GetUserById;
@@ -5,9 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CleanCore.Api.Controllers;
 
-// İlk versiyon — sadece Create + GetById, henüz API versioning ve [Authorize] yok.
-// Versioning Faz 4'te (commit 18), [Authorize] Faz 5'te eklenecek.
-[Route("api/users")]
+// API versioning eklendi: route şimdi /api/v1/users.
+// [Authorize] henüz yok — Faz 5'te eklenecek.
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/users")]
 [Produces("application/json")]
 public sealed class UsersController : ApiControllerBase
 {
