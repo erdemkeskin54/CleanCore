@@ -2,6 +2,7 @@ using System.Linq.Expressions;
 using CleanCore.Application.Abstractions.Data;
 using CleanCore.Domain.Abstractions;
 using CleanCore.Domain.Auth;
+using CleanCore.Domain.Todos;
 using CleanCore.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,6 +27,7 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
 
     public DbSet<User> Users => Set<User>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Todo> Todos => Set<Todo>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
