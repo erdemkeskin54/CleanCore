@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Erdem KESKİN",
+  "classifications": [ "Web", "WebAPI", "Clean Architecture", "CQRS", "DDD" ],
+  "identity": "CleanCore.Template",
+  "name": "CleanCore — .NET 10 Clean Architecture Web API",
+  "shortName": "cleancore",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "CleanCore",
+  "preferNameDirectory": true,
+  "defaultName": "MyApp",
+  "symbols": {
+    "DbProvider": {
+      "type": "parameter",
+      "datatype": "choice",
+      "defaultValue": "Postgres",
+      "description": "Default database provider the generated project is wired for (both providers are included; this sets the default in appsettings.json).",
+      "choices": [
+        { "choice": "Postgres", "description": "PostgreSQL (default)" },
+        { "choice": "SqlServer", "description": "Microsoft SQL Server" }
+      ],
+      "replaces": "Postgres"
+    },
+    "JwtSigningKey": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "dev-only-replace-in-production-ThisKeyMustBeAtLeast32Characters",
+      "description": "Dev-time JWT signing key written to appsettings.json (replace before production).",
+      "replaces": "dev-only-replace-in-production-ThisKeyMustBeAtLeast32Characters"
+    },
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Skip dotnet restore after generation."
+    }
+  },
+  "primaryOutputs": [
+    { "path": "CleanCore.slnx" },
+    { "path": "src/CleanCore.Api/CleanCore.Api.csproj" }
+  ],
+  "postActions": [
+    {
+      "id": "restore",
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages for the generated solution.",
+      "manualInstructions": [ { "text": "Run 'dotnet restore'." } ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "args": { "files": "0" },
+      "continueOnError": true
+    }
+  ],
+  "sources": [
+    {
+      "source": "./",
+      "target": "./",
+      "include": [ "**/*" ],
+      "exclude": [
+        ".template.config/**",
+        ".github/**",
+        ".config/**",
+        "CleanCore.Template.csproj",
+        "docs/**",
+        "**/.vs/**",
+        "**/.idea/**",
+        "**/.vscode/**",
+        "**/bin/**",
+        "**/obj/**",
+        "**/artifacts/**",
+        "**/TestResults/**",
+        "**/.DS_Store",
+        "**/Thumbs.db",
+        "*.nupkg",
+        "*.snupkg"
+      ],
+      "rename": {
+      }
+    }
+  ],
+  "SpecialCustomOperations": {
+    "**/*.yml": {
+      "operations": [
+        { "type": "conditional", "configuration": { "if": [ "#if" ], "else": [ "#else" ], "elseif": [ "#elseif" ], "endif": [ "#endif" ], "actionableIf": [ "##if" ], "actionableElse": [ "##else" ], "actionableElseif": [ "##elseif" ], "trim": true, "wholeLine": true } }
+      ]
+    }
+  }
+}
