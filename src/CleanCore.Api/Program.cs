@@ -2,8 +2,11 @@ using Asp.Versioning.ApiExplorer;
 using CleanCore.Api.Extensions;
 using CleanCore.Api.Middleware;
 using CleanCore.Application;
+using CleanCore.Application.Abstractions.Authentication;
 using CleanCore.Infrastructure;
+using CleanCore.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 // =============================================================================
@@ -54,6 +57,28 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+// -----------------------------------------------------------------------------
+// Dev kolaylığı: migration'ları startup'ta otomatik uygula
+// -----------------------------------------------------------------------------
+// `dotnet ef database update` manuel çağrısı gerekmez — `dotnet run` tek başına yeterli.
+// Production'da KAPALI: schema değişikliği deliberate olmalı (deployment pipeline'ında ayrı step).
+// IsRelational() guard'ı: integration test'lerinde InMemory provider migration desteklemediği için skip.
+// -----------------------------------------------------------------------------
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    if (db.Database.IsRelational())
+    {
+        await db.Database.MigrateAsync();
+
+        // Demo kullanıcı seed'i — `dotnet run` sonrası login için ne kullanacağını
+        // hatırlamaya gerek kalmasın. Idempotent: zaten varsa no-op.
+        var hasher = scope.ServiceProvider.GetRequiredService<IPasswordHasher>();
+        await DatabaseSeeder.SeedAsync(db, hasher);
+    }
+}
+
 // =============================================================================
 // HTTP Pipeline (sıra önemli — yorumdaki numaralar pipeline akışını gösteriyor)
 // =============================================================================
@@ -97,9 +122,19 @@ if (app.Environment.IsDevelopment())
                 description.GroupName.ToUpperInvariant());
         }
     });
+
+    // Root URL'i Swagger'a yönlendir — `dotnet run` sonrası "/" 'a giren ekipteki herkes
+    // 404 görmek yerine doğrudan API katalogunu görsün.
+    app.MapGet("/", () => Results.Redirect("/swagger")).ExcludeFromDescription();
 }
 
-app.UseHttpsRedirection();
+// HttpsRedirection sadece production'da. Dev'de launchSettings HTTP-only profil seçildiğinde
+// "Failed to determine the https port for redirect" warning'i çıkıyor — gereksiz gürültü.
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseCors(CorsConfigurationExtensions.DefaultPolicy);
 
 // !!! AUTHENTICATION MUTLAKA AUTHORIZATION'DAN ÖNCE !!!
